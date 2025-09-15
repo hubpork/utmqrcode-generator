@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UTM + QR Mini‑Tool</title>
+  <style>
+    :root{
+      --bg:#ffffff;--panel:#ffffff;--text:#111;--muted:#6b7280;--accent:#6c1b2a;--border:#e5e7eb; --output: 460px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";background:var(--bg);color:var(--text)}
+    .wrap{max-width:90vm;margin:20px auto;padding:0 16px}
+    .card{background:var(--panel);}
+    header{display:grid;place-items:center;padding:26px 16px}
+    .wineglass{width:54px;height:54px;display:block;margin:10px auto}
+    .h1{font-size:clamp(22px,3.2vw,28px);font-weight:700;letter-spacing:.2px;text-align:center;margin:8px 0 2px}
+    .sub{color:var(--muted);font-size:14px;text-align:center}
+    .grid{display:grid;gap:16px;}
+    @media(min-width:900px){.grid{grid-template-columns:1.1fr .9fr}}
+    .panel{padding:18px}
+    .section-title{font-weight:700;margin:0 0 8px;font-size:14px;color:#222;text-transform:uppercase;letter-spacing:.06em}
+    label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+    input,select,textarea{width:100%;padding:12px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font:inherit}
+    input:focus,textarea:focus,select:focus{outline:2px solid #d4d7dd;border-color:#cdd1d6}
+    .row{display:grid;gap:12px}
+    @media(min-width:680px){.row{grid-template-columns:repeat(2,1fr)}}
+    .help{font-size:12px;color:var(--muted);margin-top:6px}
+    .out{background:#fafafa;border:1px dashed var(--border);border-radius:12px;padding:14px;word-break:break-all}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{appearance:none;border:1px solid var(--border);background:#fff;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .qr-wrap{display:grid;place-items:flex-start;padding-block:18px}
+    .qr-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;display:grid;place-items:center; width: 100%; max-width: var(--output); aspect-ratio: 1;}
+      /* Anzeige: begrenzen und scharf halten */
+    .qr-box img,.qr-box canvas{max-width:var(--output);width:100%;height:auto;image-rendering:pixelated}
+    .muted{color:var(--muted)}
+    footer{padding:22px 16px;text-align:center;color:var(--muted);font-size:12px}
+    details{background:#fafafa;border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-top:8px}
+    .status{font-size:12px;color:var(--muted);margin-top:8px}
+    .logo {width: 300px; margin: 0 auto;}
+  </style>
+  <!-- QR‑Code Bibliotheken (CDNs) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1191 421"><path d="M895.625 232.625c4.576.508 7.098 2.206 10.375 5.375 5.72 7.195 7.522 14.176 6.492 23.266-.693 3.849-1.937 7.15-3.492 10.734l3.688-.25c9.827.031 19.214 3.447 26.312 10.25 5.123 5.174 8.743 9.216 9.25 16.688C948 302 948 302 946 304c-2.75.125-2.75.125-6-1-1.305-1.68-1.305-1.68-2.625-3.75-4.477-6.488-11.318-8.304-18.727-10.031-3.256-.58-6.343-1.055-9.648-1.219l-2.146-.216c-2.659-.044-4.398.17-6.854 1.216-3.07 3.43-5.028 7.362-7.125 11.438a702.837 702.837 0 0 1-1.93 3.545 806.517 806.517 0 0 0-3.978 7.373c-2.995 5.586-6.211 11.044-9.404 16.519-1.241 2.149-2.481 4.299-3.72 6.45l-1.89 3.282L870 341c-.34.591-.68 1.183-1.032 1.792C858.85 360.32 858.85 360.32 849 378l-1.813 3.313c-1.456 2.807-1.456 2.807-1.187 6.687 13.53-1.91 23.99-20.068 31.711-30.295 7.206-9.532 14.66-18.635 22.928-27.268 1.22-1.29 2.409-2.61 3.591-3.933 8.711-9.43 21.107-17.178 33.957-18.942 6.54 1.018 9.377 4.928 13.188 10C955 322.567 955 322.567 955 326l-2.535 1.293C928.298 340.084 905.825 364.385 894 389c4.893-2.456 7.81-5.938 11.25-10.063l3.46-4.07 1.7-2.005c2.111-2.472 4.28-4.89 6.465-7.3 6.326-6.995 12.407-14.054 18.125-21.562 4.991.102 7.299.869 10.875 4.438 3.902 4.19 4.561 6.964 4.504 12.643-.715 5.504-3.353 10.166-5.879 15.044l-1.59 3.188A633.627 633.627 0 0 1 939 387c3.081.346 3.081.346 4.91-1.836l2.153-2.539c3.19-3.676 6.447-7.17 9.937-10.563 8.002-7.927 14.72-16.735 21-26.062l1.965-2.906a636.934 636.934 0 0 0 4.05-6.11 142.087 142.087 0 0 1 3.907-5.593c5.595-7.891 7.314-16.043 9.078-25.391 1.746-.719 1.746-.719 4-1 5.327 3.681 9.24 8.79 11 15 .503 3.995.808 7.978 1 12 3.676-1.557 6.121-3.825 9-6.563 16.092-14.9 16.092-14.9 23.188-15.875 5.01.575 7.552 2.687 10.812 6.438 2.334 3.994 2.887 7.468 2 12-5.41 14.015-14.789 26.7-23.074 39.117l-2.07 3.122a749.058 749.058 0 0 1-4.043 6.02l-1.856 2.792-1.657 2.458c-1.481 2.839-1.93 5.327-2.3 8.491 15.957-9.692 26.513-23.47 37.203-38.374 12.554-17.456 27.967-37.498 50.387-42.165 5.007-.183 7.895.39 11.785 3.664 7.585 7.63 7.585 7.63 7.668 12.266-1.573 3.936-4.75 5.259-8.293 7.234-8.013 4.733-14.894 10.104-21.75 16.375l-2.418 2.203c-9.685 9.256-19.203 20.99-25.582 32.797v4c5.241-4.984 9.913-10.232 14.441-15.867 4.547-5.619 9.353-11.024 14.105-16.468 1.259-1.441 2.515-2.885 3.77-4.33 4.401-5.052 4.401-5.052 6.684-7.335 3.678-.144 6.06.253 8.98 2.574 3.349 3.514 6.137 6.981 6.356 12.04-1.343 9.539-6.205 18.773-10.336 27.386l1 1c5.273-5.014 9.98-10.295 14.531-15.969a309.36 309.36 0 0 1 6.718-7.934c5.776-6.629 11.2-13.465 16.475-20.5l1.561-2.077 1.371-1.841c1.368-1.708 2.685-3.249 4.344-4.679 2.688-.188 2.688-.188 5 0 .872 2.897 1.243 4.438.023 7.262l-1.648 2.425-1.965 2.907A924.25 924.25 0 0 1 1160 350l-1.418 2.008c-3.807 5.37-7.683 10.688-11.582 15.992l-1.634 2.23A684.002 684.002 0 0 1 1135 384l-2.07 2.68c-6.343 7.67-15.214 14.757-24.93 17.32-6.534.105-9.69-1.655-14.367-6.176-4.135-4.62-3.833-8.916-3.633-14.824-3.545 1.182-4.028 2.136-6.125 5.125-4.39 5.844-10.018 11.072-16.875 13.875-4.854.689-8.88.498-13.375-1.5-3.31-3.152-4.902-6.317-6.625-10.5l-1.25-3-.75-2-1.875 1.938A546.872 546.872 0 0 1 1040 390l-2.207 2.16c-6.441 6.076-12.64 10.981-21.543 12.465-4.193-.806-6.707-2.265-9.25-5.625-4.925-8.96-4.466-22.524-2.262-32.262 3.639-9.486 9.823-18.192 15.262-26.738-4.063 2.525-7.1 4.936-10.063 8.688l-2.324 2.937L1005 355l-1.499 1.914a499.789 499.789 0 0 0-21.273 29.3c-1.275 1.855-2.606 3.662-3.943 5.474-1.793 2.493-3.005 4.706-3.847 7.687C973 403 973 403 971.07 403.844c-2.07.156-2.07.156-4.633-1.719-4.537-5.817-5.901-11.849-5.437-19.125-3.308 2.6-6.14 5.072-8.75 8.375-4.738 5.698-11.829 11.334-19.25 12.625-4.264.135-6.57.097-9.96-2.504-4.678-4.884-6.633-9.956-8.04-16.496l-1.563 2c-12.246 15.073-12.246 15.073-20.437 17-5.936.479-10.722-.115-16-3-4.613-4.006-5.251-9.186-6-15v-3c-2.471 2.445-4.908 4.899-7.254 7.465-6.645 7.117-13.693 12.526-23.496 14.16-5.487-1.055-9.662-3.037-13.625-7-2.999-4.844-3.722-8.696-3.672-14.336l.02-3.001L823 378l-1.402 1.45c-23.38 24.068-23.38 24.068-32.88 24.702-4.129-.4-6.245-.782-9.593-3.402-5.44-7.041-6.854-12.955-6.125-21.75 1.648-9.542 6.004-18.263 10-27l1.566-3.469A1346.32 1346.32 0 0 1 788 341c-8.083 7.295-16.011 14.466-22.61 23.173-1.788 2.35-3.606 4.674-5.421 7.003-1.47 1.899-2.939 3.798-4.407 5.699l-2.156 2.778-2.027 2.652-1.826 2.374c-2.66 3.975-3.812 7.243-3.553 12.009.125 2.324.125 2.324 0 4.312-2 2-2 2-5.313 2.5-3.687-.5-3.687-.5-6.5-3.25-3.614-5.37-4.546-8.837-5.187-15.25-3.71 2.064-6.581 4.365-9.625 7.313-6.993 6.36-14.449 11.49-24.152 11.921-4.734-.499-7.3-3.285-10.473-6.546-4.6-7.064-4.67-14.878-3.133-22.915 3.173-12.437 9.292-22.861 16.508-33.336 6.28-9.136 10.821-18.265 11.875-29.437 1.125-2 1.125-2 3-3 4.209-.623 6.201-.576 9.688 1.938 5.527 7.32 7.297 13.917 6.312 23.062-1 3.464-2.476 6.55-4.125 9.75l-1.32 2.67c-5.108 10.081-11.061 19.683-17.088 29.234L705 378l-1.676 2.592c-1.631 2.967-1.557 5.073-1.324 8.408 2.189.577 2.189.577 5 0 2.704-1.985 4.945-4.384 7.25-6.813l2.016-2.07a194.735 194.735 0 0 0 12.703-14.586c2.044-2.547 4.192-4.943 6.406-7.344 7.707-8.497 14.666-17.543 21.063-27.062l1.214-1.8c3.742-5.678 7.33-11.567 8.598-18.325.15-.763.3-1.526.453-2.313L767 307c1.813-.598 1.813-.598 4-1 5.703 2.97 8.97 6.913 11 13 .094 2.02.13 4.041.125 6.063l.008 3.222C782 331 782 331 781 333c7.593-5.997 7.593-5.997 14.625-12.625 11.197-11.41 11.197-11.41 19.3-11.707 3.772.604 5.599 2.56 8.075 5.332 2.888 4.14 3.787 8.044 3.574 13.02-3.356 17.419-18.026 34.085-27.574 48.52l-1.278 1.946a741.152 741.152 0 0 1-3.218 4.842c-1.482 2.633-2.118 4.695-2.504 7.672 5.82-2.97 9.974-6.57 14.5-11.25l2.007-2.042c3.734-3.823 7.395-7.687 10.837-11.778 2.08-2.425 4.281-4.726 6.468-7.055 9.515-10.479 16.748-22.191 23.765-34.425a598.585 598.585 0 0 1 4.837-8.141l1.77-2.952c1.142-1.9 2.288-3.8 3.438-5.695 3.054-5.112 5.486-10.012 7.378-15.662l-2.136.048c-3.246.063-6.492.101-9.739.14l-3.36.076c-10.4.091-18.625-1.442-26.71-8.233-3.276-3.238-6.308-6.733-8.055-11.031.352-2.773.352-2.773 1-5 4.828-.335 7.494.465 11.625 2.938 5.842 3.46 10.046 4.223 16.809 4.265l2.166.017c1.509.01 3.018.016 4.526.02 2.3.01 4.6.041 6.9.072 1.469.007 2.938.012 4.408.016l2.07.038c4.357-.02 7.008-.754 10.496-3.366 3.777-3.963 5.878-8.487 8.063-13.438l1.062-2.386c2.64-6.143 4.26-12.05 5.402-18.649.637-3.404.652-3.41 4.098-3.902ZM632.563 235c6.926 5.736 11.037 13.102 12.437 22 1.785 20.742-7.88 39.867-16.5 58.125l-1.823 3.887c-4.527 9.635-9.154 19.22-13.805 28.796-5.49 11.309-10.75 22.713-15.872 34.192 5.102-1.978 9.232-4.361 13.5-7.813l1.824-1.459c17.08-13.875 34.285-29.843 47.75-47.248 2.187-2.817 4.524-5.476 6.864-8.168 3.893-4.66 7.275-9.48 10.5-14.625l1.251-1.992c5.31-8.684 9.077-17.617 6.815-27.965-2.722-9.025-6.805-13.822-14.992-18.46-2.17-1.097-4.299-1.993-6.574-2.833C661 250 661 250 660 247.375c0-2.375 0-2.375 1-3.375 14.648-1.54 26.685 3.713 38.027 12.586 6.596 5.917 11.662 15.4 12.211 24.258.507 21.062-8.771 34.881-22.945 50.053a474.465 474.465 0 0 1-7.194 7.265 779.069 779.069 0 0 0-4.396 4.408c-5.497 5.505-11.186 10.64-17.284 15.483-2.32 1.868-4.533 3.812-6.731 5.822-5.979 5.358-12.33 10.23-18.688 15.125l-2.459 1.895C620.832 389.135 610.056 397.232 599 405l-1.761 1.358c-4.427 3.36-7.124 4.363-12.739 4.072-5.23-.9-10.132-3.255-13.5-7.43-1.92-4.507-2.354-8.56-2.438-13.438l-.12-3.808c.761-11.638 6.833-23.021 11.858-33.357 1.788-3.682 3.544-7.38 5.302-11.077l1.103-2.317c3.971-8.375 7.74-16.837 11.482-25.315l1-2.262 3.938-8.92a3716.398 3716.398 0 0 1 10.125-22.693c2.233-4.972 2.233-4.972 4.46-9.946a677.91 677.91 0 0 1 2.517-5.531l1.101-2.41.95-2.054c1.807-4.688 1.094-8.008-.84-12.497-4.015-6.24-9.715-8.777-16.618-10.895-7.42-1.264-14.557-.278-21.883 1.145l-2.771.538C571.713 239.9 563.879 242.509 556 246l-1.846.809C528.17 258.403 507.292 280.493 497 307c-3.925 10.583-5.794 20.61-2.105 31.605 2.487 5.388 6.273 9.854 11.73 12.332 9.061 2.853 19.347 3.97 28.055-.449 4.036-2.588 7.74-5.601 11.425-8.66 3.322-2.098 5.039-2.373 8.895-1.828 2 2 2 2 2.75 5.5-.098 4.483-2.212 6.6-5.25 9.75-9.604 8.832-19.39 11.296-32.363 10.996-10.389-.483-22.168-3.248-29.754-10.871-1.448-1.644-1.448-1.644-4.383-2.375l-.785 2.707c-3.608 9.78-14.6 20.55-23.215 26.293-2.273-.037-4.545-.15-6.813-.313-4.778-.224-4.778-.224-9.019 1.547a69.853 69.853 0 0 0-2.57 3.63c-6.26 8.372-18.306 15.218-28.598 17.136-12.057.886-12.057.886-17.563-1.625L395 400l-2.688-2.313C388.3 392.73 387.962 385.142 387 379l-1.723 1.941c-20.453 22.912-20.453 22.912-30.902 23.559-5.247-.083-8.004-1.563-11.68-5.246-4.9-6.516-6.693-14.24-5.695-22.254 1.763-8.272 5.58-15.302 9.688-22.625l1.837-3.332c1.483-2.686 2.975-5.367 4.475-8.043-20.313 15.17-36.017 33.67-44.238 57.918C308 403 308 403 307 404c-2.813.375-2.813.375-6 0-5.696-5.537-6.63-12.498-8-20-5.868 5.182-11.53 10.446-16.895 16.152-5.069 4.449-10.47 4.28-16.937 4.157-5.87-.572-8.666-2.614-12.606-7.059-3.799-7.664-2.297-18.727-.125-26.688 3.82-10.774 9.747-20.569 15.602-30.335l1.076-1.8a967.914 967.914 0 0 1 5.388-8.898c3.677-6.08 6.594-11.672 8.497-18.529 5.45.222 8.508 1.437 12.488 5.21 4.416 5.227 5.077 11.265 4.856 17.935-1.393 11.566-8.088 21.492-15.844 29.855-7.374 7.955-12.5 14.96-12.5 26 17.921-6.347 32.432-26.964 43-42l3.16-4.434a985.086 985.086 0 0 0 6.137-8.726 181.516 181.516 0 0 1 4.906-6.711c4.053-5.321 5.853-9.849 6.996-16.465.95-3.158 2.33-4.54 4.801-6.664 3.217.921 4.679 1.498 6.512 4.363 2.99 7.499 4.555 14.632 5.488 22.637l1.709-1.298c2.594-1.966 5.193-3.928 7.791-5.89l2.688-2.04c13.646-10.286 13.646-10.286 18.875-11.46 4.283 1.003 6.96 3.523 9.937 6.688 2.334 4.668 1.501 10.848.352 15.785-3.607 10.713-10.462 19.412-17.143 28.362-4.907 6.652-9.144 13.662-13.209 20.853l-1.309 2.238c-.983 1.953-.983 1.953.309 4.762 10.422-7.036 19.07-15.352 27.207-24.938a132.52 132.52 0 0 1 4.055-4.437c5.012-5.288 9.258-10.64 13.3-16.688 8.717-13.015 19.834-26.506 34.875-32.25 10.696-2.064 18.403.645 27.563 6.313l.043-2.57c.915-22.515 13.405-39.705 29.332-54.68 33.23-29.1 98.452-54.772 139.188-25.75Zm-203.68 113.281c-9.363 11.222-19.55 25.52-19.352 40.66.568 2.495 1.53 3.445 3.469 5.059 9.837-4.2 17.188-9.817 25-17l2.375-1.918c2.329-2.984 1.887-5.05 1.625-8.77-.178-6.315.322-11.064 4-16.312 2.826-2.454 4.356-2.934 8.063-3.313 2.864.305 4.556.726 6.937 2.313 1.74 3.478 1.46 7.197 1 11-1.519 4-3.393 6.595-7 9l2 4c6.932-1.386 11.26-5.994 15.138-11.664 1.163-1.819 2.273-3.659 3.362-5.524l1.062-1.8c1.924-3.46 3.147-6.06 2.438-10.012-1.428-2.639-1.428-2.639-3.375-5.125l-1.898-2.57L472 334l-2-3c-15.317-1.964-31.036 6.419-41.117 17.281ZM153.188 218.688c1.907-.01 1.907-.01 3.853-.018 17.377.135 31.24 2.944 43.97 15.28 7.403 7.898 8.581 14.868 8.353 25.596-.418 7.503-3.088 14.344-5.677 21.329-.55 1.538-1.1 3.076-1.648 4.615-9.11 25.32-20.1 49.97-32.914 73.635C163.716 369.149 158.406 379.416 158 391a302.088 302.088 0 0 0 27-21l2.063-1.758c13.311-11.418 26.672-23.605 38.03-36.996a334.54 334.54 0 0 1 4.75-5.46C235.92 318.886 241.43 312.02 246 304l1.168-1.965c6.13-11.11 8.938-24.413 6.207-36.89-2.549-7.522-7.248-12.025-14.234-15.614a177.59 177.59 0 0 0-5.723-2.488C231 246 231 246 228 244l1-4c12.438-.556 21.346-.218 31.25 8.188 9.704 9.338 14.75 19.646 15.223 33.182.21 20.32-8.682 33.477-22.473 47.63-.476.49-.951.981-1.44 1.487-4.89 5.026-9.873 9.897-15.212 14.447-2.62 2.306-5.155 4.69-7.693 7.085-5.82 5.491-11.69 10.803-17.948 15.797-2.404 1.94-4.747 3.934-7.08 5.958-44.564 38.467-44.564 38.467-59.752 38.163-5.126-1.67-8.638-4.827-11.14-9.648-4.902-15.28 4.21-31.85 10.736-45.348 1.064-2.202 2.118-4.408 3.17-6.617 1.436-3.017 2.877-6.033 4.32-9.048 4.818-10.084 9.49-20.237 14.168-30.387.93-2.016 1.86-4.031 2.792-6.047 1.684-3.646 3.36-7.296 5.033-10.948.64-1.397 1.283-2.793 1.928-4.188 11.811-22.95 11.811-22.95 11.29-47.495-2.995-5.65-8.365-9.255-14.19-11.618-3.71-1.11-7.384-1.122-11.232-1.093l-2.635.015c-30.51.799-61.164 18.604-82.236 39.598-15.451 16.475-26.335 39.706-26.313 62.293.765 6.338 3.714 10.533 8.196 14.852 9.092 7.077 18.264 9.545 29.508 8.539 7.655-1.27 13.896-5.762 19.886-10.504 2.402-1.684 3.974-1.603 6.844-1.293 1 1 1 1 1.375 4.25-.375 3.75-.375 3.75-2.25 6.375C103.642 360.832 93.667 363.253 82 364l-2.438.164c-13.038.46-23.918-3.934-33.624-12.414A334.323 334.323 0 0 1 41 347l-2.164-2.09c-10.645-11.035-15.289-24.576-15.271-39.688.524-16.204 10.145-29.854 21.537-40.702C67.914 244.69 94.05 230.487 123 222l3.605-1.098c8.776-2.212 17.576-2.18 26.582-2.214Z"/><path fill="#6A1622" d="M497 76c.532 19.206-1.856 32.038-15.453 46.547-7.535 7.257-15.732 12.809-25.547 16.453l-1.973.742c-10.43 3.233-21.86 1.543-32.027-1.742l-2.617-.844c-6.55-2.367-11.884-5.93-17.383-10.156l-1.938-1.434C390.976 118.406 384.69 107.446 383 96c-.068-2.78-.095-5.534-.063-8.313l.014-2.244c.012-1.814.03-3.629.049-5.443l2.367.627c3.564.94 7.13 1.876 10.695 2.81l3.725.987 3.623.947 3.317.873c17.862 4.126 32.664 1.92 48.964-5.818C467.743 75.232 484.165 72.497 497 76Z"/><path fill="#231F20" d="m403.027 6.906 2.225.011c11.438.079 22.875.345 34.31.583l7.14.145c5.765.116 11.532.235 17.298.355l-1 2-2.447.056c-7.608.176-15.215.365-22.822.57-3.911.106-7.822.206-11.734.293-3.774.085-7.547.183-11.32.292-1.44.039-2.881.073-4.322.101-2.016.041-4.032.102-6.048.164l-3.479.087c-2.826.207-2.826.207-4.66 1.825-1.54 2.125-2.24 4.17-3.035 6.67l-.988 3.08-1.02 3.3-1.063 3.39C386.98 39.795 384.247 49.81 382 60l-.746 3.281C378.439 78.037 377.532 96.133 384 110l1.25 2.68c6.17 11.535 16.716 17.707 27.411 24.514 13.397 8.594 24.051 18.729 27.797 34.765 4.74 22.522 4.2 47.834-8.74 67.705-10.529 14.31-23.609 22.045-40.156 27.711l-2.406.834-2.277.752-2.045.681C383 270 383 270 380 269l2.063-.813a259.2 259.2 0 0 0 18.312-8.25l2.016-.994c4.078-2.05 7.856-4.328 11.609-6.943l1.8-1.21c11.76-9.055 16.75-23.611 19.805-37.552 2.35-19.278 1.229-40.436-10.367-56.71-2.562-2.894-5.389-5.04-8.55-7.215l-1.843-1.297c-3.844-2.687-7.749-5.27-11.68-7.828-13.994-9.14-24.87-18.867-29.446-35.555-6.123-30.946 3.97-67.223 17.957-94.754 2.716-3.854 7.06-2.996 11.351-2.973Z"/><path d="M312.418 267.719c4.707 1.955 8.498 4.103 11.582 8.281.733 3.826.235 5.548-1.563 9-1.937 2.384-3.462 3.895-5.812 5.75-3.816 3.08-5.88 6.687-8.168 10.98-1.579 2.46-2.959 3.773-5.457 5.27-4.197.09-5.634-.65-8.688-3.563-4.222-5.734-5.96-11.73-5.73-18.843.967-6.003 3.737-10.991 8.106-15.156 5.088-3.164 9.948-3.438 15.73-1.72ZM750.313 268.688c3.988 1.767 6.602 3.332 8.687 7.312.658 3.866.218 5.59-1.625 9.063C755 288 755 288 752.25 290.063c-4.349 3.297-6.53 8.44-9.027 13.171C741 306 741 306 737.414 306.98c-3.414.02-3.414.02-6.101-1.418-5.686-6.3-7.614-13.101-7.313-21.562 1.097-6.196 3.58-10.58 8-15 5.922-3.539 12.047-2.598 18.313-.313Z"/><path fill="#231F20" d="M489 19c4.276 3.724 5.46 8.917 7.313 14.125l1.195 3.337c7.948 22.825 16.589 51.084 6.203 74.436-7.946 15.51-21.358 23.73-35.748 32.633A131.753 131.753 0 0 0 450 157c0-4.213 1.791-5.58 4.55-8.625 4.576-4.437 9.68-8.217 14.746-12.072 3.22-2.463 6.38-5 9.532-7.55a204.396 204.396 0 0 1 4.094-3.226C491.57 118.657 498.384 108.025 500 97c1.531-22.56-3.254-43.95-8.73-65.691-1.018-4.1-1.782-8.115-2.27-12.309Z"/></svg>
+        </div>
+
+        <div class="h1">UTM + QR Mini‑Tool</div>
+        <div class="sub">Baut GA4‑Kampagnen‑URLs & generiert sofort einen QR‑Code (<strong>PNG & SVG Download</strong>).</div>
+      </header>
+      <div class="grid">
+        <!-- Link‑Builder -->
+        <div class="panel">
+          <div class="section-title">Kampagnen‑URL</div>
+          <label for="baseUrl">Basis‑URL</label>
+          <input id="baseUrl" type="url" placeholder="https://www.deine-domain.tld/pfad?optional=1" />
+          <div class="help">Zielseite ohne UTM‑Parameter. Bestehende Query‑Parameter bleiben erhalten.</div>
+
+          <div class="row">
+            <div>
+              <label for="utm_source">utm_source</label>
+              <input id="utm_source" placeholder="z. B. instagram, newsletter, flyer" />
+            </div>
+            <div>
+              <label for="utm_medium">utm_medium</label>
+              <input id="utm_medium" placeholder="z. B. social, cpc, print" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="utm_campaign">utm_campaign</label>
+              <input id="utm_campaign" placeholder="z. B. herbstaktion_2025, black_friday" />
+            </div>
+            <div>
+              <label for="utm_content">utm_content <span class="muted">(optional)</span></label>
+              <input id="utm_content" placeholder="z. B. ad_a, flyer_a6, header_banner" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="utm_term">utm_term <span class="muted">(optional)</span></label>
+              <input id="utm_term" placeholder="Keyword oder interne Variante" />
+            </div>
+            <div>
+              <label for="qrSize">QR‑Grösse (px)</label>
+              <input id="qrSize" type="number" min="128" max="2048" step="32" value="512" />
+            </div>
+          </div>
+
+          <label for="result">Ergebnis‑URL</label>
+          <div id="result" class="out" aria-live="polite">—</div>
+
+          <div class="btns" style="margin-top:10px">
+            <button class="btn" id="copyBtn" disabled>URL kopieren</button>
+            <button class="btn" id="clearBtn">Felder leeren</button>
+          </div>
+
+          <details>
+            <summary><strong>Testfälle</strong> (klicken zum Ausklappen)</summary>
+            <div class="btns" style="margin-top:10px">
+              <button class="btn" data-test="1">Füllen: Test 1 – Standard</button>
+              <button class="btn" data-test="2">Füllen: Test 2 – Mit Query</button>
+              <button class="btn" data-test="3">Füllen: Test 3 – Ohne Schema</button>
+            </div>
+            <ul class="help">
+              <li><strong>Test 1</strong>: Basis‑URL <code>https://www.vinovintana.ch/</code>, <code>utm_source=instagram</code>, <code>utm_medium=social</code>, <code>utm_campaign=herbstaktion_2025</code>.</li>
+              <li><strong>Test 2</strong>: Basis‑URL <code>https://www.vinovintana.ch/produkt?id=9411</code> (Query bleibt erhalten) + gleiche UTM wie oben.</li>
+              <li><strong>Test 3</strong>: Basis‑URL <code>www.vinovintana.ch?x=1</code> → Tool ergänzt automatisch <code>https://</code>.</li>
+            </ul>
+          </details>
+
+          <div id="libStatus" class="status">Status: Prüfe QR‑Bibliotheken …</div>
+        </div>
+
+        <!-- QR‑Code Bereich -->
+        <div class="panel">
+          <div class="section-title">QR‑Code</div>
+          <div class="qr-wrap">
+            <div id="qrBox" class="qr-box">
+              <div class="muted">QR wird hier angezeigt …</div>
+            </div>
+          </div>
+          <div class="btns">
+            <button class="btn primary" id="downloadPngBtn" disabled>PNG herunterladen</button>
+            <button class="btn" id="downloadSvgBtn" disabled>SVG herunterladen</button>
+            <button class="btn" id="retryLibBtn" style="display:none">QR‑Libs nachladen</button>
+          </div>
+        </div>
+      </div>
+      <footer>
+        Tipp: Einheitliche Kleinschreibung & keine Leerzeichen in UTM‑Werten (stattdessen „-” oder „_”).
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // --- Utility Shortcuts ---
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      baseUrl: $('#baseUrl'), source: $('#utm_source'), medium: $('#utm_medium'), campaign: $('#utm_campaign'), content: $('#utm_content'), term: $('#utm_term'),
+      size: $('#qrSize'), result: $('#result'), qrBox: $('#qrBox'), copyBtn: $('#copyBtn'), clrBtn: $('#clearBtn'), dlPng: $('#downloadPngBtn'), dlSvg: $('#downloadSvgBtn'),
+      libStatus: $('#libStatus'), retryLibBtn: $('#retryLibBtn')
+    };
+
+    let lastSvgUrl = null; // Blob URL für SVG Download
+
+    // --- QR Library Detection & Loader ---
+    function libsLoaded() {
+      return { png: typeof window.QRCode !== 'undefined', svg: typeof window.qrcode !== 'undefined' };
+    }
+
+    function updateLibStatus() {
+      const s = libsLoaded();
+      els.libStatus.textContent = `Status: PNG‑Lib ${s.png ? 'geladen' : 'NICHT geladen'} · SVG‑Lib ${s.svg ? 'geladen' : 'NICHT geladen'}`;
+      els.retryLibBtn.style.display = (s.png && s.svg) ? 'none' : 'inline-block';
+      return s;
+    }
+
+    async function injectCdnScripts() {
+      const s = libsLoaded();
+      const loaders = [];
+      if (!s.png) loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'));
+      if (!s.svg) loaders.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'));
+      if (loaders.length) await Promise.allSettled(loaders);
+      updateLibStatus();
+    }
+
+    function loadScript(src){
+      return new Promise((resolve,reject)=>{ const el=document.createElement('script'); el.src=src; el.onload=resolve; el.onerror=reject; document.head.appendChild(el);});
+    }
+
+    // --- URL Builder ---
+    function buildUrl() {
+      const base = (els.baseUrl.value || '').trim();
+      if (!base) return '';
+      let url;
+      try {
+        // Scheme ergänzen, falls Nutzer nur Domain eintippt
+        url = new URL(/^https?:\/\//i.test(base) ? base : `https://${base}`);
+      } catch (_) {
+        return '';
+      }
+      const params = url.searchParams;
+      const put = (k, v) => { if (v && v.trim()) params.set(k, v.trim()); };
+      put('utm_source', els.source.value);
+      put('utm_medium', els.medium.value);
+      put('utm_campaign', els.campaign.value);
+      put('utm_content', els.content.value);
+      put('utm_term', els.term.value);
+      url.search = params.toString();
+      return url.toString();
+    }
+
+    // --- QR Rendering (PNG via qrcodejs, Anzeige im UI) ---
+    function drawQR_PNG(text) {
+      els.qrBox.innerHTML = '';
+      if (!text) {
+        els.qrBox.innerHTML = '<div class="muted">QR wird hier angezeigt …</div>';
+        return false;
+      }
+      if (typeof window.QRCode === 'undefined') {
+        els.qrBox.innerHTML = '<div class="muted">PNG‑QR‑Bibliothek nicht verfügbar. Klicke auf „QR‑Libs nachladen”.</div>';
+        return false;
+      }
+      const size = Math.max(128, Math.min(2048, parseInt(els.size.value || '512', 10)));
+      const div = document.createElement('div');
+      els.qrBox.appendChild(div);
+      /* global QRCode */
+      new QRCode(div, { text, width: size, height: size, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      return true;
+    }
+
+    // --- QR SVG Generierung (Download, kein UI‑Render nötig) ---
+    function buildQR_SVG_Url(text){
+      if (lastSvgUrl) { URL.revokeObjectURL(lastSvgUrl); lastSvgUrl = null; }
+      if (!text || typeof window.qrcode === 'undefined') return null;
+      const size = Math.max(128, Math.min(4096, parseInt(els.size.value || '512', 10)));
+      const qr = window.qrcode(0, 'M');
+      qr.addData(text);
+      qr.make();
+      const modules = qr.getModuleCount();
+      const cell = Math.max(2, Math.floor(size / modules));
+      let svg = qr.createSvgTag(cell, 0); // margin 0
+      // bessere Kanten + feste Zielgröße
+      svg = svg.replace('<svg ', '<svg shape-rendering="crispEdges" ')
+               .replace(/width="(\d+)"/,'width="'+size+'"')
+               .replace(/height="(\d+)"/,'height="'+size+'"');
+      const blob = new Blob([svg], {type:'image/svg+xml'});
+      lastSvgUrl = URL.createObjectURL(blob);
+      return lastSvgUrl;
+    }
+
+    function renderResult() {
+      const url = buildUrl();
+      els.result.textContent = url || '—';
+      const status = updateLibStatus();
+
+      // PNG Anzeige
+      const qrOk = url && status.png ? drawQR_PNG(url) : (els.qrBox.innerHTML = url ? '<div class="muted">PNG‑QR‑Lib nicht verfügbar …</div>' : '<div class="muted">QR wird hier angezeigt …</div>', false);
+      els.copyBtn.disabled = !url;
+      els.dlPng.disabled = !(url && status.png && qrOk);
+
+      // SVG Download vorbereiten
+      const svgUrl = url && status.svg ? buildQR_SVG_Url(url) : null;
+      els.dlSvg.disabled = !svgUrl;
+      els.dlSvg.dataset.href = svgUrl || '';
+    }
+
+    // --- Actions ---
+    els.copyBtn.addEventListener('click', async () => {
+      const text = els.result.textContent;
+      try { await navigator.clipboard.writeText(text); els.copyBtn.textContent = 'Kopiert!'; setTimeout(()=> els.copyBtn.textContent='URL kopieren', 1200); } catch(e) {}
+    });
+
+    els.clrBtn.addEventListener('click', () => {
+      els.baseUrl.value = els.source.value = els.medium.value = els.campaign.value = els.content.value = els.term.value = '';
+      renderResult();
+    });
+
+    els.retryLibBtn.addEventListener('click', async () => {
+      try { await injectCdnScripts(); } catch(_) {}
+      renderResult();
+    });
+
+    // Download PNG (unterstützt sowohl <canvas> als auch IMG dataURL)
+    els.dlPng.addEventListener('click', () => {
+      const img = els.qrBox.querySelector('img');
+      const canvas = els.qrBox.querySelector('canvas');
+      let dataURL;
+      if (canvas) dataURL = canvas.toDataURL('image/png');
+      else if (img) dataURL = img.src;
+      else return;
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().replace(/[:.]/g,'-');
+      a.download = `qr-${ts}.png`;
+      a.href = dataURL;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+
+    // Download SVG
+    els.dlSvg.addEventListener('click', () => {
+      const href = els.dlSvg.dataset.href;
+      if (!href) return;
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().replace(/[:.]/g,'-');
+      a.download = `qr-${ts}.svg`;
+      a.href = href;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+
+    // Live updates
+    [els.baseUrl, els.source, els.medium, els.campaign, els.content, els.term, els.size].forEach(el => el.addEventListener('input', renderResult));
+
+    // --- Testfälle befüllen ---
+    document.querySelectorAll('button[data-test]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-test');
+        if (id === '1') {
+          els.baseUrl.value = 'https://www.vinovintana.ch/';
+          els.source.value = 'instagram';
+          els.medium.value = 'social';
+          els.campaign.value = 'herbstaktion_2025';
+          els.content.value = '';
+          els.term.value = '';
+        } else if (id === '2') {
+          els.baseUrl.value = 'https://www.vinovintana.ch/produkt?id=9411';
+          els.source.value = 'instagram';
+          els.medium.value = 'social';
+          els.campaign.value = 'herbstaktion_2025';
+          els.content.value = 'produktkarte';
+          els.term.value = '';
+        } else if (id === '3') {
+          els.baseUrl.value = 'www.vinovintana.ch?x=1';
+          els.source.value = 'newsletter';
+          els.medium.value = 'email';
+          els.campaign.value = 'oktober_2025_launch';
+          els.content.value = 'cta_oben';
+          els.term.value = '';
+        }
+        renderResult();
+      });
+    });
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      updateLibStatus();
+      renderResult();
+    });
+  </script>
+</body>
+</html>
